@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "pdf-extractor"
+version = "0.1.0"
+description = ""
+authors = ["Luca Salvarani <lucasalvarani99@gmail.com>"]
+readme = "README.md"
+packages = [{include = "*", from = "src"}]
+
+[tool.poetry.dependencies]
+python = ">3.8,<3.12"
+pypdf2 = "^3.0.1"
+rich = "^13.3.5"
+pyinstaller = "^5.10.1"
+pandas = {extras = ["excel"], version = "^2.0.1"}
+poethepoet = "^0.20.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.poe.tasks.build]
+help = "Build the executable"
+sequence = [
+    { shell = "pyinstaller --onefile --clean --log-level WARN --name 'Totali informazioni statistiche' ./src/main.py", interpreter = "powershell" },
+]
