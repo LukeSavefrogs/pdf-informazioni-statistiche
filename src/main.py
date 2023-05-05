@@ -94,7 +94,7 @@ def get_value(field: dict[str, Any], ret_type: Literal["raw", "boolean", "number
 
 	Args:
 		field (dict): Field from which the value will be retrieved.
-		ret_type ("raw" | "boolean" | "number" | "text", optional): _description_. Defaults to "raw".
+		ret_type ("raw" | "boolean" | "number" | "text", optional): The type the value needs to be converted in. Defaults to "raw".
 
 	Returns:
 		bool | int | str | Any: The value converted to the desired type.
