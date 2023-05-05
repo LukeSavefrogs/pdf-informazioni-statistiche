@@ -76,7 +76,7 @@ def main():
 
 def get_application_path() -> Path:
 	""" Return the path where the file being run is located.
-	This works regardles if it's a script file ('.py') or a frozen executable ('.exe'). 
+	This works regardless if it's a script file ('.py') or a frozen executable ('.exe'). 
 
 	Returns:
 		Path: The absolute path to the file being run.
