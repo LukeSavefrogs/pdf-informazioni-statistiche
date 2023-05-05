@@ -1,6 +1,6 @@
 import sys
 from pathlib import Path
-from typing import Dict, List, Literal
+from typing import Any, Dict, List, Literal
 
 import PyPDF2
 
@@ -8,6 +8,7 @@ import pandas as pd
 
 from rich.logging import RichHandler
 import logging
+
 
 logger = logging.getLogger("danea-easyfatt")
 logger.addHandler(RichHandler(
@@ -19,16 +20,13 @@ logger.setLevel(logging.INFO)
 
 
 def main():
-	# Determine if application is a script file or frozen exe
-	if getattr(sys, 'frozen', False):
-		application_path = Path(sys.executable).parent
-	elif __file__:
-		application_path = Path(__file__).parent
-	
+	""" The script entry point. """
 	data: List[Dict] = []
-	output_file = application_path / "output.xlsx"
 
-	input_folder = Path(application_path / "data")
+	application_path = get_application_path()
+	output_file = application_path / "output.xlsx"	
+	
+	input_folder = application_path / "data"
 	if not input_folder.exists():
 		logger.critical(f"Cartella '{input_folder}' inesistente. Crearla e riprovare.")
 		return False
@@ -75,7 +73,32 @@ def main():
 
 	return True
 
-def get_value(field, ret_type: Literal["raw", "boolean", "number", "text"] = "raw"):
+
+def get_application_path() -> Path:
+	""" Return the path where the file being run is located.
+	This works regardles if it's a script file ('.py') or a frozen executable ('.exe'). 
+
+	Returns:
+		Path: The absolute path to the file being run.
+	"""
+	if getattr(sys, 'frozen', False):
+		application_path = Path(sys.executable).parent
+	else:
+		application_path = Path(__file__).parent
+	
+	return application_path.resolve()
+
+
+def get_value(field: dict[str, Any], ret_type: Literal["raw", "boolean", "number", "text"] = "raw"):
+	""" Convert the value into the type `ret_type` specified.
+
+	Args:
+		field (dict): Field from which the value will be retrieved.
+		ret_type ("raw" | "boolean" | "number" | "text", optional): _description_. Defaults to "raw".
+
+	Returns:
+		bool | int | str | Any: The value converted to the desired type.
+	"""
 	value = field["/V"] if "/V" in field.keys() else None
 	
 	if ret_type == "boolean":
@@ -88,6 +111,17 @@ def get_value(field, ret_type: Literal["raw", "boolean", "number", "text"] = "ra
 	return value
 
 def parse_file(file: Path):
+	""" Reads the pdf file and returns a dictionary with all the fillable fields.
+
+	Args:
+		file (Path): The path to the pdf file.
+
+	Raises:
+		ValueError: The file has not been filled as expected
+
+	Returns:
+		dict: The fillable fields grouped by section.
+	"""
 	reader = PyPDF2.PdfReader(file, strict=False)
 	fields = reader.get_fields()
 
@@ -135,6 +169,8 @@ def parse_file(file: Path):
 		}
 	}
 
+
+# STUDY: https://realpython.com/if-name-main-python/
 if __name__ == '__main__':
     try:
         main()
